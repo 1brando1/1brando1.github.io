@@ -1,0 +1,329 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=windows-1252">
+<title>Installing OS 8 &amp; OS 8.1 on 68030 Macs</title>
+</head>
+<body vlink="green" text="#000000" link="blue" alink="#F00510">
+<h1>NOTE: THIS PAGE IS AN ARCHIVE. SOME LINKS HAVE BEEN UPDATED. NOT ALL ARE PROMISED TO WORK.</h1>
+<a href="http://home.earthlink.net/~gamba2/index.html">Back to Home Page</a>&nbsp;&nbsp;&nbsp;12/31/01&nbsp;&nbsp;rev 03/22/02
+<center><font size="+1"><b>Installing OS 8 &amp; OS 8.1 on 68030 Macs</b></font></center>
+<center>Thanks to <a href="http://www.vintagebox.de/mac68k/macos_p2-en.html">Vintage Box : 68k Mac - OS  8/030</a> for the OS 8 &amp; 8.1 hacks.</center>
+<hr>
+<b>Description:</b><br>
+Following are methods for installing OS 8.0 and 8.1 on 68030 Macs made with 32 bit clean ROMs.<br>
+<a href="#tst">These Macs</a> have been reported successful with both OS 8.0 and 8.1.<br>
+<a href="http://home.earthlink.net/~gamba2/os8_se30.html">This page</a> shows how to do it with the SE/30.
+<hr>
+<b>Hardware Requirements:</b><br>
+&nbsp;•&nbsp;Macintosh IIci, IIfx, IIsi, IIvi, IIvx, LC III, LC520, 550, 560; Performa 275, 450, 460-467, 600;<br>
+&nbsp;&nbsp;&nbsp;Color Classic II; PowerBook 150, 160, 165, 165c, 180, 180c; PowerBook Duo 210, 230, 250, 270c.<br>
+&nbsp;•&nbsp;Minimum of 12MB of RAM.<br>
+&nbsp;•&nbsp;Single hard drive, minimum of 44MB free space.<br>
+&nbsp;•&nbsp;OS 7.0.1 minimum.<br>
+&nbsp;•&nbsp;CD ROM drive.
+<hr>
+<b>OS 8.0 Install:</b><ol><li>Hard drive must have boot OS 7.0.1 (or higher), and also 
+<a href="https://archive.org/download/download.info.apple.com.2012.11/download.info.apple.com.2012.11.zip/download.info.apple.com%2FApple_Support_Area%2FApple_Software_Updates%2FEnglish-North_American%2FMacintosh%2FUtilities%2FResEdit_2.1.3.sea.bin">ResEdit 2.1.3</a>, 
+<a href="/lciii/system_picker_1.1a3.sit.hqx">System_Picker 1.1a3</a>, 
+<a href="/lciii/os8-030patch.sit.hqx">os8-030patch.rsrc</a>, and 
+<a href="/lciii/wish+I+were.sit">Wish I Were 2.0</a>.
+</li><li>CD ROM drive to have OS 8.0 or OS 8.1 CD.
+</li><li>Boot from hard drive OS 7.0.1 (or higher).
+</li><li>Drag Wish I Were control panel and Wish I Were extension to hard drive OS 7.x.x System Folder icon.
+</li><li>Set Wish I Were control panel to 'Quadra 700', close all control panels, and reboot.
+</li><li>Launch the 8.0 Installer and select Installer options "Clean Install" and "Easy Install".<br>
+NOTE:&nbsp;On the Mac OS 8.1 CD, the OS 8.0 Installer is located at<br>
+<u>Full Install Pieces--&gt;Software Installers--&gt;System Software--&gt;Mac OS 8--&gt;</u>.
+</li><li>When installer is done restart with 
+<a href="http://download.info.apple.com/Apple_Support_Area/Apple_Software_Updates/English-North_American/Macintosh/Utilities/Network_Access_Disk_7.5.sea.bin">Network Access Disk 7.5</a> floppy and do ResEdit hacks:
+</li><li><b>ResEdit hacks to 8.0 System file:</b><br>
+&nbsp;•&nbsp;Replace 'boot' resource 'ID 2' with same resource from 'os8-030patch.rsrc'.<br>
+&nbsp;•&nbsp;Replace 'gbly' resource 'ID -16385' with same resource from 'os8-030patch.rsrc'.<br>
+&nbsp;•&nbsp;'gusd' resource 'ID 1' at offset '000010', replace data '0016 0006' with data<br>
+&nbsp;&nbsp;&nbsp;'00<font color="RED"><b>??</b></font> 0005', where <font color="RED"><b>??</b></font> is the hexidecimal code as shown in this pull-down menu:
+<center>
+<form>
+<select>
+<option selected="selected">??&nbsp;&nbsp;Mac
+</option><option>ØB&nbsp;&nbsp;IIci
+</option><option>ØD&nbsp;&nbsp;IIfx
+</option><option>12&nbsp;&nbsp;IIsi
+</option><option>2C&nbsp;&nbsp;IIvi
+</option><option>3Ø&nbsp;&nbsp;IIvx
+</option><option>53&nbsp;&nbsp;Color Classic II
+</option><option>1B&nbsp;&nbsp;LC III
+</option><option>3E&nbsp;&nbsp;LC III+
+</option><option>38&nbsp;&nbsp;LC 520
+</option><option>5Ø&nbsp;&nbsp;LC 550, 560
+</option><option>53&nbsp;&nbsp;Performa 275
+</option><option>1B&nbsp;&nbsp;Performa 450
+</option><option>3E&nbsp;&nbsp;Performa 460-467
+</option><option>2D&nbsp;&nbsp;Performa 600
+</option><option>1D&nbsp;&nbsp;PowerBook Duo 210
+</option><option>2Ø&nbsp;&nbsp;PowerBook Duo 230
+</option><option>26&nbsp;&nbsp;PowerBook Duo 250
+</option><option>4D&nbsp;&nbsp;PowerBook Duo 270c
+</option><option>73&nbsp;&nbsp;PowerBook 150
+</option><option>22&nbsp;&nbsp;PowerBook 160
+</option><option>54&nbsp;&nbsp;PowerBook 165
+</option><option>32&nbsp;&nbsp;PowerBook 165c
+</option><option>21&nbsp;&nbsp;PowerBook 180
+</option><option>47&nbsp;&nbsp;PowerBook 180c
+</option></select>.
+</form></center>
+&nbsp;•&nbsp;Quit ResEdit.
+</li><li>Trash the 'Monitors and Sound' control panel.
+</li><li>From the Apple Extras folder drag both the 'Monitors' and 'Sound' control panels to the System Folder icon.
+</li><li><b>ResEdit hack to 8.0 Finder file:</b> (optional)<br>
+&nbsp;•&nbsp;'SIZE' resource 'ID -1', change 'Size' to '1310720'.<br>
+&nbsp;•&nbsp;Quit ResEdit.
+</li><li>Use System Picker to select hard drive OS 8.0 for reboot.</li></ol>
+<hr>
+<b>OS 8.1 Update Install:</b>
+<ol>
+<li>Hard drive must have OS 8.0 which was installed per above, and also <a href="http://download.info.apple.com/Apple_Support_Area/Apple_Software_Updates/English-North_American/Macintosh/Utilities/ResEdit_2.1.3.sea.bin">ResEdit 2.1.3</a>, <a href="http://home.earthlink.net/~gamba2/download/system_picker_1.1a3.sit.hqx">System_Picker 1.1a3</a>, <a href="http://home.earthlink.net/~gamba2/download/os8-030patch.sit.hqx">os8-030patch.rsrc</a>, <a href="http://download.info.apple.com/Apple_Support_Area/Apple_Software_Updates/English-North_American/Macintosh/System/Mac_OS_8.1_Update/">8.1 Update</a>, and <a href="http://sukenmac.u-shizuoka-ken.ac.jp/archive/macseminar/software/wish/wish.sea.hqx">Wish I Were 2.0</a>.
+</li><li>Boot from hard drive OS 8.0.
+</li><li>Drag Wish I Were control panel and Wish I Were extension to OS 8.0 System folder icon.
+</li><li>Set Extensions Manager control panel to 'My Settings' and check all boxes.
+</li><li>Set Wish I Were control panel to 'Quadra 700'. Close all control panels.
+</li><li>Use System Picker to reboot from hard drive OS 8.0.
+</li><li>Open the 'Update to Mac OS 8.1' installer and in Options <b>uncheck</b> 'Update Apple Hard Drive Drivers'.
+</li><li>Run 'Update to Mac OS 8.1' installer.
+</li><li>When installer is done restart with <a href="http://download.info.apple.com/Apple_Support_Area/Apple_Software_Updates/English-North_American/Macintosh/Utilities/Network_Access_Disk_7.5.sea.bin">Network Access Disk 7.5</a> floppy and do ResEdit hacks:
+</li><li><b>ResEdit hacks to 8.1 System file:</b><br>
+&nbsp;•&nbsp;Replace 'gbly' resource 'ID -16385' with the same resource from 'os8-030patch.rsrc'.<br>
+&nbsp;•&nbsp;'gusd' resource 'ID 1' at offset '000010',  replace data '0016 0006' with data<br>
+&nbsp;&nbsp;&nbsp;'00<font color="RED"><b>??</b></font> 0006', where <font color="RED"><b>??</b></font> is the same code that was used for installing OS 8.0.
+</li><li><b>ResEdit hack to 8.1 Finder file:</b> (optional)<br>
+&nbsp;•&nbsp;'SIZE' resource 'ID -1', change 'Size' to '1310720'.
+</li><li>Quit ResEdit.
+</li><li>Remove Wish I Were control panel and extension. (optional)
+</li><li>Use System Picker to select hard drive OS 8.1 for reboot.</li></ol>
+<a name="tst"></a><hr>
+<b>Both OS 8.0 and 8.1 have been successful with these Macs:</b><br>
+&nbsp;•&nbsp;IIci &nbsp;(20/250, built-in video)<br>
+&nbsp;•&nbsp;IIci &nbsp;(64/1000, Spectrum/24 PDQ+, DayStar Turbo 040 40MHz)<br>
+&nbsp;•&nbsp;IIfx &nbsp;(32/250, Macintosh Display Card 670 8•24 820-0600-A)<br>
+&nbsp;•&nbsp;IIsi &nbsp;(17/250, built-in video)<br>
+&nbsp;•&nbsp;LCIII (36/80) (field report, OS 8.0)<br>
+<hr>
+<b>Reference Information</b>
+<center><table>
+<tbody><tr><th colspan="9"><a href="http://docs.info.apple.com/article.html?artnum=9095">Gestalt ID Codes</a>
+</th>
+</tr>
+<tr><th colspan="2">68000, 68020</th><th colspan="3">68030</th><th colspan="2">68040</th>
+</tr>
+<tr>
+<td valign="TOP" align="RIGHT">
+<font size="-1"><b>DEC</b></font><br>
+1<br>
+2<br>
+3<br>
+4<br>
+5<br>
+6<br>
+10<br>
+17<br>
+19<br>
+24<br>
+</td>
+<td valign="TOP" nowrap="nowrap">
+<b>Macintosh</b><br>
+Macintosh<br>
+XL<br>
+512Ke<br>
+Plus<br>
+SE<br>
+II<br>
+Portable<br>
+Classic <br>
+LC<br>
+PowerBook 100<br>
+</td>
+<td valign="TOP" align="RIGHT">
+<font size="-1"><b>DEC</b></font><br>
+9<br>
+7<br>
+8<br>
+11<br>
+13<br>
+18<br>
+44<br>
+48<br>
+23<br>
+49<br>
+83<br>
+37<br>
+27<br>
+62<br>
+56<br>
+80<br>
+23<br>
+49<br>
+83<br>
+37<br>
+27<br>
+62<br>
+45<br>
+29<br>
+32<br>
+38<br>
+77<br>
+25<br>
+54<br>
+115<br>
+34<br>
+84<br>
+50<br>
+21<br>
+33<br>
+71<br>
+88<br>
+</td>
+<td valign="TOP" align="RIGHT">
+<font size="-1"><b>HEX</b></font><br>
+09<br>
+07<br>
+08<br>
+0B<br>
+0D<br>
+12<br>
+2C<br>
+30<br>
+17<br>
+31<br>
+53<br>
+25<br>
+1B<br>
+3E<br>
+38<br>
+50<br>
+17<br>
+31<br>
+53<br>
+25<br>
+1B<br>
+3E<br>
+2D<br>
+1D<br>
+20<br>
+26<br>
+4D<br>
+19<br>
+36<br>
+73<br>
+22<br>
+54<br>
+32<br>
+15<br>
+21<br>
+47<br>
+58<br>
+</td>
+<td valign="TOP" nowrap="nowrap">
+<b>Macintosh</b><br>
+<a href="http://home.earthlink.net/~gamba2/os8_se30.html">SE/30</a>&nbsp;<font size="-1">(32 bit dirty ROM)</font><br>
+IIx&nbsp;&nbsp;<font size="-1">(32 bit dirty ROM)</font><br>
+IIcx&nbsp;&nbsp;<font size="-1">(32 bit dirty ROM)</font><br>
+IIci<br>
+IIfx<br>
+IIsi<br>
+IIvi<br>
+IIvx<br>
+Classic II&nbsp;&nbsp;<font size="-1">&lt;12MB RAM</font><br>
+Color Classic&nbsp;&nbsp;<font size="-1">&lt;12MB RAM</font><br>
+Color Classic II<br>
+LC II&nbsp;&nbsp;&nbsp;&nbsp;<font size="-1">&lt;12MB RAM</font><br>
+LC III<br>
+LC III+<br>
+LC 520<br>
+LC 550, 560<br>
+Performa 200&nbsp;&nbsp;<font size="-1">&lt;12MB RAM</font><br>
+Performa 250&nbsp;&nbsp;<font size="-1">&lt;12MB RAM</font><br>
+Performa 275<br>
+Performa 400-430&nbsp;&nbsp;<font size="-1">&lt;12MB RAM</font><br>
+Performa 450<br>
+Performa 460-467<br>
+Performa 600<br>
+PowerBook Duo 210<br>
+PowerBook Duo 230<br>
+PowerBook Duo 250<br>
+PowerBook Duo 270c<br>
+PowerBook 140&nbsp;&nbsp;&nbsp;&nbsp;<font size="-1">&lt;12MB RAM</font><br>
+PowerBook 145, 145b&nbsp;<font size="-1">&lt;12MB RAM</font><br>
+PowerBook 150<br>
+PowerBook 160<br>
+PowerBook 165<br>
+PowerBook 165c<br>
+PowerBook 170&nbsp;&nbsp;<font size="-1">&lt;12MB RAM</font><br>
+PowerBook 180<br>
+PowerBook 180c<br>
+TV&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font size="-1">&lt;12MB RAM</font><br>
+</td>
+<td valign="TOP" align="RIGHT">
+<font size="-1"><b>DEC</b></font><br>
+52<br>
+30<br>
+60<br>
+94<br>
+53<br>
+98<br>
+"<br>
+"<br>
+36<br>
+22<br>
+35<br>
+78<br>
+20<br>
+26<br>
+89<br>
+"<br>
+92<br>
+"<br>
+99<br>
+"<br>
+102<br>
+103<br>
+122<br>
+72<br>
+</td>
+<td valign="TOP" nowrap="nowrap">
+<b>Macintosh</b><br>
+Centris 610<br>
+Centris 650<br>
+Quadra/Centris 660AV<br>
+Quadra 605<br>
+Quadra 610, 610DOS<br>
+Quadra 630<br>
+Performa 630-638, 640DOS<br>
+LC 630, 630DOS<br>
+Quadra 650<br>
+Quadra 700<br>
+Quadra 800<br>
+Quadra 840AV<br>
+Quadra 900<br>
+Quadra 950<br>
+LC 475<br>
+Performa 475, 476<br>
+LC 575<br>
+Performa 575, 577, 578<br>
+LC 580<br>
+Performa 580CD, 588CD<br>
+PowerBook Duo 280<br>
+PowerBook Duo 280c<br>
+PowerBook 190<br>
+PowerBook 500 series<br>
+</td>
+</tr></tbody></table></center>
+<center>"Performa computers have the same MachineType resources as their Macintosh counterparts."</center>
+<hr>
+<b>Born Again Disclaimer:</b><br>
+<a href="http://home.cox.rr.com/brochner/bornagain/index.html">Born Again</a>, from <a href="http://home.cox.rr.com/brochner/bornagain.htm">Brochner
+ Software</a>, is software that permits installing OS 8 or 8.1 on 68030 Macs with 32 bit clean ROMS.<br>
+We in no way used Born Again to install OS 8 or OS 8.1 on our 68030 Macs.<br>
+We never looked at any code from Born Again.<br>
+We got the trial version from the author and tried it once to unsuccessfully install OS 8.1 on an SE/30 with IIsi ROM simm.
+<hr><small><i>05/16/03 Relational links<br>This page copyright © 2001-2003 by Gamba. All rights reserved.</i></small>
+
+</body></html>
