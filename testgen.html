@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .gemini-button {
+             background: linear-gradient(to right, #4f46e5, #c026d3);
+        }
+        /* Hide number input arrows */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+          -webkit-appearance: none; 
+          margin: 0; 
+        }
+        input[type=number] {
+          -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen py-8">
+    <div class="container mx-auto p-4 md:p-8 max-w-2xl">
+        <div class="bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8 space-y-6">
+            <header>
+                <h1 class="text-3xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">AI Image Generator</h1>
+                <p class="text-center text-gray-400 mt-2">Describe the image you want to create and watch the magic happen.</p>
+            </header>
+
+            <!-- Prompt Input -->
+            <div class="space-y-4">
+                <div>
+                    <label for="prompt" class="block text-sm font-medium text-gray-300">Your Prompt</label>
+                    <textarea id="prompt" rows="4" class="w-full mt-1 p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 resize-none">photo of a majestic lion basking in the golden hour sun on the african savanna, detailed fur, dramatic lighting</textarea>
+                </div>
+
+                <div class="space-y-4 pt-2">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <button id="suggestBtn" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-gray-500">
+                            ✨ Suggest a Prompt
+                        </button>
+                        <button id="enhancePromptBtn" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-gray-500">
+                            ✨ Enhance Prompt
+                        </button>
+                    </div>
+                    <button id="generateBtn" class="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-blue-500">
+                        Generate Image
+                    </button>
+                </div>
+            </div>
+
+            <!-- Image Display & Loading State -->
+            <div id="image-container" class="w-full bg-gray-700 rounded-lg aspect-video flex items-center justify-center mt-6 min-h-[250px] md:min-h-[350px] transition-all duration-300">
+                <div id="loader" class="loader hidden"></div>
+                <img id="resultImage" src="https://placehold.co/1280x720/1f2937/374151?text=Your+Generated+Image+Will+Appear+Here" alt="Generated Image" class="rounded-lg object-contain h-full w-full">
+                <p id="errorMessage" class="text-red-400 hidden text-center p-4">Could not generate the image. Please try again.</p>
+            </div>
+             <p id="apiNotice" class="text-xs text-center text-gray-500 mt-4">
+                Note: Image generation can take a moment.
+            </p>
+
+            <!-- Gemini Description Section -->
+            <div id="descriptionSection" class="hidden space-y-4 pt-4 border-t border-gray-700">
+                 <button id="describeBtn" class="w-full gemini-button text-white font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-indigo-500">
+                    ✨ Describe My Image
+                </button>
+                <div id="descriptionContainer" class="w-full bg-gray-700 rounded-lg p-4 min-h-[100px] text-gray-300">
+                    <div id="descriptionLoader" class="loader mx-auto hidden"></div>
+                    <p id="descriptionText"></p>
+                    <p id="descriptionError" class="text-red-400 hidden text-center p-4">Could not generate a description. Please try again.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const suggestBtn = document.getElementById('suggestBtn');
+        const enhancePromptBtn = document.getElementById('enhancePromptBtn');
+        const generateBtn = document.getElementById('generateBtn');
+        const describeBtn = document.getElementById('describeBtn');
+
+        const promptInput = document.getElementById('prompt');
+        const resultImage = document.getElementById('resultImage');
+        const loader = document.getElementById('loader');
+        const errorMessage = document.getElementById('errorMessage');
+        const imageContainer = document.getElementById('image-container');
+
+        const descriptionSection = document.getElementById('descriptionSection');
+        const descriptionContainer = document.getElementById('descriptionContainer');
+        const descriptionLoader = document.getElementById('descriptionLoader');
+        const descriptionText = document.getElementById('descriptionText');
+        const descriptionError = document.getElementById('descriptionError');
+
+        const apiKey = ""; // API key is handled by the environment
+
+        // --- Gemini Text Generation Call ---
+        async function callGeminiText(systemPrompt, userPrompt) {
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: userPrompt }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+            };
+            const response = await fetchWithExponentialBackoff(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!response.ok) { throw new Error(`HTTP error! status: ${response.status}`); }
+            const result = await response.json();
+            const candidate = result.candidates?.[0];
+            if (candidate && candidate.content?.parts?.[0]?.text) {
+                return candidate.content.parts[0].text;
+            } else {
+                throw new Error('Invalid response structure from Gemini API.');
+            }
+        }
+
+        // --- Event Listeners ---
+        suggestBtn.addEventListener('click', async () => {
+            suggestBtn.disabled = true;
+            suggestBtn.textContent = 'Thinking...';
+            promptInput.value = 'Generating a creative prompt...';
+            
+            try {
+                const systemPrompt = "You are a creative assistant. Generate a single, imaginative, and visually rich prompt for an AI image generator. Make it detailed, focusing on a clear subject, environment, and style. Do not use markdown or formatting.";
+                const userPrompt = "Suggest a random, creative image prompt.";
+                promptInput.value = await callGeminiText(systemPrompt, userPrompt);
+            } catch (error) {
+                console.error("Error suggesting prompt:", error);
+                promptInput.value = "Sorry, couldn't suggest a prompt. Please write your own!";
+            } finally {
+                suggestBtn.disabled = false;
+                suggestBtn.textContent = '✨ Suggest a Prompt';
+            }
+        });
+
+        enhancePromptBtn.addEventListener('click', async () => {
+            const currentPrompt = promptInput.value.trim();
+            if (!currentPrompt) {
+                 const originalBorder = promptInput.style.borderColor;
+                promptInput.style.borderColor = 'red';
+                promptInput.placeholder = 'Please enter a prompt to enhance.';
+                setTimeout(() => { 
+                    promptInput.style.borderColor = originalBorder;
+                    promptInput.placeholder = '';
+                }, 3000);
+                return;
+            }
+
+            enhancePromptBtn.disabled = true;
+            enhancePromptBtn.textContent = 'Enhancing...';
+            
+            try {
+                const systemPrompt = "You are a prompt engineer for an AI image generator. Your task is to take a user's basic idea and expand it into a detailed, visually rich prompt. Keep the core subject but add details about the environment, lighting, artistic style, composition, and level of detail. Do not use markdown or formatting. Only output the enhanced prompt.";
+                promptInput.value = await callGeminiText(systemPrompt, currentPrompt);
+            } catch (error) {
+                console.error("Error enhancing prompt:", error);
+                // Optionally, inform the user of the error
+            } finally {
+                enhancePromptBtn.disabled = false;
+                enhancePromptBtn.textContent = '✨ Enhance Prompt';
+            }
+        });
+
+
+        generateBtn.addEventListener('click', async () => {
+            const userPrompt = promptInput.value.trim();
+            if (!userPrompt) {
+                // Using a custom modal/alert would be better, but for simplicity:
+                const originalBorder = promptInput.style.borderColor;
+                promptInput.style.borderColor = 'red';
+                promptInput.placeholder = 'Please enter a prompt before generating.';
+                setTimeout(() => { 
+                    promptInput.style.borderColor = originalBorder;
+                    promptInput.placeholder = '';
+                }, 3000);
+                return;
+            }
+
+            loader.classList.remove('hidden');
+            resultImage.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+            descriptionSection.classList.add('hidden');
+            descriptionText.textContent = '';
+            descriptionError.classList.add('hidden');
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Generating...';
+
+            const imageUrlApi = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{
+                    parts: [{ text: userPrompt }]
+                }],
+                generationConfig: {
+                    responseModalities: ['TEXT', 'IMAGE']
+                },
+            };
+
+            try {
+                const response = await fetchWithExponentialBackoff(imageUrlApi, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                const base64Data = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+                
+                if (base64Data) {
+                    const imageUrl = `data:image/png;base64,${base64Data}`;
+                    resultImage.src = imageUrl;
+                    resultImage.classList.remove('hidden');
+                    descriptionSection.classList.remove('hidden'); 
+                } else {
+                    throw new Error('Invalid response structure from Image API. No image data found.');
+                }
+            } catch (error) {
+                console.error('Error generating image:', error);
+                errorMessage.textContent = `Error: ${error.message}. Please check the console for details.`;
+                errorMessage.classList.remove('hidden');
+                resultImage.src = 'https://placehold.co/1280x720/1f2937/9ca3af?text=Generation+Failed';
+                resultImage.classList.remove('hidden');
+            } finally {
+                loader.classList.add('hidden');
+                generateBtn.disabled = false;
+                generateBtn.textContent = 'Generate Image';
+            }
+        });
+
+        describeBtn.addEventListener('click', async () => {
+             const userPrompt = promptInput.value.trim();
+             if (!userPrompt) return;
+
+             describeBtn.disabled = true;
+             descriptionLoader.classList.remove('hidden');
+             descriptionText.textContent = '';
+             descriptionError.classList.add('hidden');
+
+             try {
+                const systemPrompt = "You are a creative storyteller. Based on the following user-provided prompt for an AI-generated image, write a short, one-paragraph, imaginative story or description that brings the scene to life.";
+                descriptionText.textContent = await callGeminiText(systemPrompt, userPrompt);
+             } catch (error) {
+                 console.error("Error generating description:", error);
+                 descriptionError.classList.remove('hidden');
+             } finally {
+                describeBtn.disabled = false;
+                descriptionLoader.classList.add('hidden');
+             }
+        });
+
+        async function fetchWithExponentialBackoff(url, options, retries = 5, delay = 1000) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.status !== 429) { return response; }
+                    const jitter = Math.random() * 500;
+                    await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, i) + jitter));
+                } catch (error) {
+                    if (i === retries - 1) throw error;
+                    const jitter = Math.random() * 500;
+                    await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, i) + jitter));
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+
