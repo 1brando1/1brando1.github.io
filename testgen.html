@@ -118,7 +118,7 @@
             if (!apiKey) {
                 throw new Error("API key is missing. Please add your API key to the script.");
             }
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
             const payload = {
                 contents: [{ parts: [{ text: userPrompt }] }],
                 systemInstruction: { parts: [{ text: systemPrompt }] },
@@ -134,6 +134,10 @@
             if (candidate && candidate.content?.parts?.[0]?.text) {
                 return candidate.content.parts[0].text;
             } else {
+                // Check for safety ratings blocking the response
+                if (result.promptFeedback?.blockReason) {
+                    throw new Error(`Request was blocked due to: ${result.promptFeedback.blockReason}. Please adjust your prompt.`);
+                }
                 throw new Error('Invalid response structure from Gemini API.');
             }
         }
@@ -143,6 +147,7 @@
             suggestBtn.disabled = true;
             suggestBtn.textContent = 'Thinking...';
             promptInput.value = 'Generating a creative prompt...';
+            errorMessage.classList.add('hidden');
             
             try {
                 const systemPrompt = "You are a creative assistant. Generate a single, imaginative, and visually rich prompt for an AI image generator. Make it detailed, focusing on a clear subject, environment, and style. Do not use markdown or formatting.";
@@ -151,7 +156,7 @@
             } catch (error) {
                 console.error("Error suggesting prompt:", error);
                 if (error.message && error.message.includes('429')) {
-                    errorMessage.textContent = "Rate Limit Exceeded. Please wait a moment before getting suggestions.";
+                    errorMessage.textContent = "Request failed (Error 429). This can happen due to rate limits or daily quotas. Please wait and try again.";
                 } else {
                     errorMessage.textContent = `Error: ${error.message}`;
                 }
@@ -178,6 +183,7 @@
 
             enhancePromptBtn.disabled = true;
             enhancePromptBtn.textContent = 'Enhancing...';
+            errorMessage.classList.add('hidden');
             
             try {
                 const systemPrompt = "You are a prompt engineer for an AI image generator. Your task is to take a user's basic idea and expand it into a detailed, visually rich prompt. Keep the core subject but add details about the environment, lighting, artistic style, composition, and level of detail. Do not use markdown or formatting. Only output the enhanced prompt.";
@@ -185,7 +191,7 @@
             } catch (error) {
                 console.error("Error enhancing prompt:", error);
                 if (error.message && error.message.includes('429')) {
-                    errorMessage.textContent = "Rate Limit Exceeded. Please wait a moment before enhancing.";
+                    errorMessage.textContent = "Request failed (Error 429). This can happen due to rate limits or daily quotas. Please wait and try again.";
                 } else {
                     errorMessage.textContent = `Error: ${error.message}`;
                 }
@@ -208,7 +214,6 @@
         
             const userPrompt = promptInput.value.trim();
             if (!userPrompt) {
-                // Using a custom modal/alert would be better, but for simplicity:
                 const originalBorder = promptInput.style.borderColor;
                 promptInput.style.borderColor = 'red';
                 promptInput.placeholder = 'Please enter a prompt before generating.';
@@ -228,14 +233,11 @@
             generateBtn.disabled = true;
             generateBtn.textContent = 'Generating...';
 
-            const imageUrlApi = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`;
+            // --- SWITCHED to imagen-3.0-generate-002 model ---
+            const imageUrlApi = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
             const payload = {
-                contents: [{
-                    parts: [{ text: userPrompt }]
-                }],
-                generationConfig: {
-                    responseModalities: ['TEXT', 'IMAGE']
-                },
+                instances: [{ prompt: userPrompt }],
+                parameters: { "sampleCount": 1 }
             };
 
             try {
@@ -250,7 +252,7 @@
                 }
 
                 const result = await response.json();
-                const base64Data = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+                const base64Data = result.predictions?.[0]?.bytesBase64Encoded;
                 
                 if (base64Data) {
                     const imageUrl = `data:image/png;base64,${base64Data}`;
@@ -262,10 +264,9 @@
                 }
             } catch (error) {
                 console.error('Error generating image:', error);
-                // Check if the error is a rate limit error
                 if (error.message && error.message.includes('429')) {
-                    errorMessage.textContent = "Rate Limit Exceeded (Error 429). You've sent too many requests. Please wait a minute and try again.";
-                    resultImage.src = 'https://placehold.co/1280x720/1f2937/9ca3af?text=Rate+Limit+Exceeded';
+                    errorMessage.textContent = "Request failed (Error 429). This may be due to API rate limits or a daily usage quota. Please wait and try again, or check your API key usage in Google AI Studio.";
+                    resultImage.src = 'https://placehold.co/1280x720/1f2937/9ca3af?text=Too+Many+Requests';
                 } else {
                     errorMessage.textContent = `Error: ${error.message}. Please check the console for details.`;
                     resultImage.src = 'https://placehold.co/1280x720/1f2937/9ca3af?text=Generation+Failed';
@@ -294,7 +295,7 @@
              } catch (error) {
                  console.error("Error generating description:", error);
                  if (error.message && error.message.includes('429')) {
-                    descriptionError.textContent = "Rate Limit Exceeded. Please wait a moment before getting a description.";
+                    descriptionError.textContent = "Request failed (Error 429). This can happen due to rate limits or daily quotas. Please wait and try again.";
                  } else {
                     descriptionError.textContent = error.message;
                  }
@@ -311,27 +312,19 @@
             for (let i = 0; i < retries; i++) {
                 try {
                     const response = await fetch(url, options);
-                    // If the response is not a rate limit error, we're done with this function.
-                    // The caller is responsible for checking if the response is actually successful (e.g., response.ok).
                     if (response.status !== 429) {
                         return response;
                     }
                     lastError = new Error(`HTTP error! status: ${response.status}`);
                 } catch (error) {
-                    // This catches network errors, CORS issues, etc.
                     lastError = error;
                 }
 
-                // If we've reached here, it's either a 429 or a network error.
-                // We'll wait before the next retry, unless it's the last attempt.
                 if (i < retries - 1) {
                     const jitter = Math.random() * 500;
                     await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, i) + jitter));
                 }
             }
-
-            // If the loop completes, it means we've exhausted all retries.
-            // Throw the last error that was captured.
             throw lastError || new Error("The request failed after multiple retries.");
         }
     </script>
