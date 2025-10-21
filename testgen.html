@@ -288,19 +288,35 @@
         });
 
         async function fetchWithExponentialBackoff(url, options, retries = 5, delay = 1000) {
+            let lastError;
+
             for (let i = 0; i < retries; i++) {
                 try {
                     const response = await fetch(url, options);
-                    if (response.status !== 429) { return response; }
-                    const jitter = Math.random() * 500;
-                    await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, i) + jitter));
+                    // If the response is not a rate limit error, we're done with this function.
+                    // The caller is responsible for checking if the response is actually successful (e.g., response.ok).
+                    if (response.status !== 429) {
+                        return response;
+                    }
+                    lastError = new Error(`API rate limit exceeded (status ${response.status})`);
                 } catch (error) {
-                    if (i === retries - 1) throw error;
+                    // This catches network errors, CORS issues, etc.
+                    lastError = error;
+                }
+
+                // If we've reached here, it's either a 429 or a network error.
+                // We'll wait before the next retry, unless it's the last attempt.
+                if (i < retries - 1) {
                     const jitter = Math.random() * 500;
                     await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, i) + jitter));
                 }
             }
+
+            // If the loop completes, it means we've exhausted all retries.
+            // Throw the last error that was captured.
+            throw lastError || new Error("The request failed after multiple retries.");
         }
     </script>
 </body>
 </html>
+
