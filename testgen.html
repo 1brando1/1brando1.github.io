@@ -150,7 +150,11 @@
                 promptInput.value = await callGeminiText(systemPrompt, userPrompt);
             } catch (error) {
                 console.error("Error suggesting prompt:", error);
-                errorMessage.textContent = error.message;
+                if (error.message && error.message.includes('429')) {
+                    errorMessage.textContent = "Rate Limit Exceeded. Please wait a moment before getting suggestions.";
+                } else {
+                    errorMessage.textContent = `Error: ${error.message}`;
+                }
                 errorMessage.classList.remove('hidden');
                 promptInput.value = "Sorry, couldn't suggest a prompt. Please write your own!";
             } finally {
@@ -180,7 +184,11 @@
                 promptInput.value = await callGeminiText(systemPrompt, currentPrompt);
             } catch (error) {
                 console.error("Error enhancing prompt:", error);
-                errorMessage.textContent = error.message;
+                if (error.message && error.message.includes('429')) {
+                    errorMessage.textContent = "Rate Limit Exceeded. Please wait a moment before enhancing.";
+                } else {
+                    errorMessage.textContent = `Error: ${error.message}`;
+                }
                 errorMessage.classList.remove('hidden');
             } finally {
                 enhancePromptBtn.disabled = false;
@@ -254,9 +262,15 @@
                 }
             } catch (error) {
                 console.error('Error generating image:', error);
-                errorMessage.textContent = `Error: ${error.message}. Please check the console for details.`;
+                // Check if the error is a rate limit error
+                if (error.message && error.message.includes('429')) {
+                    errorMessage.textContent = "Rate Limit Exceeded (Error 429). You've sent too many requests. Please wait a minute and try again.";
+                    resultImage.src = 'https://placehold.co/1280x720/1f2937/9ca3af?text=Rate+Limit+Exceeded';
+                } else {
+                    errorMessage.textContent = `Error: ${error.message}. Please check the console for details.`;
+                    resultImage.src = 'https://placehold.co/1280x720/1f2937/9ca3af?text=Generation+Failed';
+                }
                 errorMessage.classList.remove('hidden');
-                resultImage.src = 'https://placehold.co/1280x720/1f2937/9ca3af?text=Generation+Failed';
                 resultImage.classList.remove('hidden');
             } finally {
                 loader.classList.add('hidden');
@@ -279,7 +293,11 @@
                 descriptionText.textContent = await callGeminiText(systemPrompt, userPrompt);
              } catch (error) {
                  console.error("Error generating description:", error);
-                 descriptionError.textContent = error.message;
+                 if (error.message && error.message.includes('429')) {
+                    descriptionError.textContent = "Rate Limit Exceeded. Please wait a moment before getting a description.";
+                 } else {
+                    descriptionError.textContent = error.message;
+                 }
                  descriptionError.classList.remove('hidden');
              } finally {
                 describeBtn.disabled = false;
@@ -298,7 +316,7 @@
                     if (response.status !== 429) {
                         return response;
                     }
-                    lastError = new Error(`API rate limit exceeded (status ${response.status})`);
+                    lastError = new Error(`HTTP error! status: ${response.status}`);
                 } catch (error) {
                     // This catches network errors, CORS issues, etc.
                     lastError = error;
